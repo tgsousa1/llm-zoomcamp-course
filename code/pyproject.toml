@@ -9,8 +9,10 @@ dependencies = [
     "jupyter",
     "minsearch>=0.1.0",
     "openai",
+    "psycopg[binary]>=3.3.4",
     "python-dotenv",
     "requests",
+    "sentence-transformers>=5.6.0",
     "sqlitesearch>=0.1.1",
     "toyaikit>=0.0.11",
 ]
