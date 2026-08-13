@@ -1,5 +1,7 @@
 # Movie Assistant
 
+![Screenshot 1](/screenshots/print1.png?raw=true "Screenshot 1")
+
 A Retrieval-Augmented Generation (RAG) movie assistant that answers questions about movies released between 2016 and 2026.
 
 The application uses a movie knowledge base, vector search, an LLM, and a Streamlit interface. It also includes retrieval and LLM evaluation, user feedback, and monitoring with Prometheus, Grafana, and Grafana Tempo.
@@ -184,6 +186,7 @@ Once the containers are running, the application can be accessed at:
 ```text
 http://localhost:8501
 ```
+![Screenshot 2](/screenshots/print2.png?raw=true "Screenshot 2")
 
 The monitoring services are available at:
 
@@ -282,6 +285,7 @@ The monitoring configuration files are located in the project root:
 * `docker-compose.yml` — starts the application and monitoring services.
 
 Grafana dashboards are provisioned automatically from the project files. This means the dashboard is recreated automatically when the Grafana container is recreated.
+![Screenshot 3](/screenshots/print3.png?raw=true "Screenshot 3")
 
 The application exposes Prometheus metrics and OpenTelemetry traces while running.
 
@@ -316,6 +320,7 @@ This starts the application and monitoring dependencies defined in the project's
 Prometheus collects application metrics and Tempo receives application traces while the Movie Assistant is running.
 
 A pre-built dashboard named "Basic Monitoring Dashboard" can be found in Grafana under the "Movie Assistant" folder.
+![Screenshot 4](/screenshots/print4.png?raw=true "Screenshot 4")
 
 ## Reproducing the evaluation
 
