@@ -4,7 +4,7 @@ A Retrieval-Augmented Generation (RAG) movie assistant that answers questions ab
 
 The application uses a movie knowledge base, vector search, an LLM, and a Streamlit interface. It also includes retrieval and LLM evaluation, user feedback, and monitoring with Prometheus, Grafana, and Grafana Tempo.
 
-> **Author's note:** This project received significant assistance from ChatGPT during development, particularly for evaluation, monitoring, and testing.
+> **Author's note:** This project received significant assistance from ChatGPT during development, particularly for evaluation, monitoring, testing and this documentation. Vector Search was the chosen method and explanation is available later on this document.
 
 ## Dataset
 
@@ -25,8 +25,6 @@ The dataset contains movie information such as:
 * language
 
 The processed data used by the application will also be uploaded to the repository. Therefore, users do **not** need to rebuild the knowledge base or embeddings to reproduce the project.
-
-If you want to rebuild them, delete the existing processed data and embedding files and run the ingestion process again.
 
 ## How it works
 
@@ -70,6 +68,12 @@ The final RAG uses vector search because it performed best during retrieval eval
 │   └── processed/
 │       ├── documents.json
 │       └── embeddings.npy
+│
+├── grafana/
+│   ├── dashboards/
+│   │   └── ...
+│   └── provisioning/
+│       └── ...
 │
 ├── prometheus.yml
 ├── tempo.yaml
@@ -155,7 +159,7 @@ If the processed dataset and embeddings are already present in the repository, n
 
 The application expects the processed files used by `search.py`.
 
-If you want to regenerate them, remove the existing processed files and run the ingestion process provided by the project.
+<b>If you want to regenerate them, remove the existing processed files and run the ingestion process provided by the project.</b>
 
 This is useful when:
 
@@ -165,13 +169,29 @@ This is useful when:
 
 ## Running the application
 
-Start the Streamlit application:
+Build and start the complete application and monitoring stack with:
 
 ```bash
-uv run streamlit run src/app.py
+docker compose up -d --build
 ```
 
-The application can then be opened in the URL displayed by Streamlit.
+The Docker build installs the application dependencies and prepares the Streamlit application inside the image.
+
+> **Note:** The Docker image build can take approximately **5–8 minutes**, mainly because some of the Python dependencies are large. The application is only started after the image has been successfully built.
+
+Once the containers are running, the application can be accessed at:
+
+```text
+http://localhost:8501
+```
+
+The monitoring services are available at:
+
+```text
+Grafana:     http://localhost:3000
+Prometheus:  http://localhost:9090
+Tempo:       http://localhost:3200
+```
 
 Example questions:
 
@@ -195,8 +215,8 @@ The retrieved movie titles can also be inspected through the interface.
 
 Each RAG response can be classified by the user as:
 
-* 👍 Useful
-* 👎 Not useful
+* 🟢 Useful
+* 🔴 Not useful
 
 The feedback is recorded as a Prometheus metric and displayed in Grafana.
 
@@ -250,16 +270,18 @@ The selected prompt explicitly instructs the model to:
 
 The project uses:
 
-- OpenTelemetry for application tracing;
-- Grafana Tempo for traces;
-- Prometheus for metrics;
-- Grafana for dashboards.
+* OpenTelemetry for application tracing;
+* Grafana Tempo for traces;
+* Prometheus for metrics;
+* Grafana for dashboards.
 
 The monitoring configuration files are located in the project root:
 
-- `prometheus.yml` — Prometheus configuration and application scrape target.
-- `tempo.yaml` — Grafana Tempo configuration.
-- `docker-compose.yml` — starts the monitoring services and their dependencies.
+* `prometheus.yml` — Prometheus configuration and application scrape target.
+* `tempo.yaml` — Grafana Tempo configuration.
+* `docker-compose.yml` — starts the application and monitoring services.
+
+Grafana dashboards are provisioned automatically from the project files. This means the dashboard is recreated automatically when the Grafana container is recreated.
 
 The application exposes Prometheus metrics and OpenTelemetry traces while running.
 
@@ -283,15 +305,17 @@ The monitoring services are provided through Docker Compose.
 
 ## Running monitoring
 
-Start the monitoring stack with:
+The monitoring stack is started together with the application:
 
 ```bash
-docker compose up -d
+docker compose up -d --build
 ```
 
-This starts the monitoring dependencies defined in the project's Docker Compose configuration.
+This starts the application and monitoring dependencies defined in the project's Docker Compose configuration.
 
-The application must also be running for Prometheus to collect its metrics and for Tempo to receive traces.
+Prometheus collects application metrics and Tempo receives application traces while the Movie Assistant is running.
+
+A pre-built dashboard named "Basic Monitoring Dashboard" can be found in Grafana under the "Movie Assistant" folder.
 
 ## Reproducing the evaluation
 
@@ -370,17 +394,12 @@ The project currently includes:
 * user feedback;
 * application monitoring;
 * distributed tracing;
-* metrics dashboards.
+* metrics dashboards;
+* automatic Grafana dashboard provisioning.
 
 Document re-ranking and explicit query rewriting are not currently implemented.
 
 ## Reproducibility
-
-To reproduce the project:
-
-```bash
-uv sync
-```
 
 Configure the `.env` file:
 
@@ -391,17 +410,17 @@ OPENAI_MODEL=gpt-5.4-mini
 
 Ensure the processed dataset and embeddings are available.
 
-Start monitoring:
+Build and start the complete application:
 
 ```bash
-docker compose up -d
+docker compose up -d --build
 ```
 
-Start the application:
+The Streamlit application is included in the Docker image and starts automatically with the container.
 
-```bash
-uv run streamlit run src/app.py
-```
+The initial Docker image build may take approximately **5–8 minutes** because of the size of some Python dependencies.
+
+The project also provisions the Grafana datasources and dashboard automatically.
 
 Run the evaluation when required:
 

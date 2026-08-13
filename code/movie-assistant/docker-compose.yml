@@ -29,6 +29,8 @@ services:
       - tempo
     volumes:
       - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
 
   prometheus:
     image: prom/prometheus:latest
